@@ -21,9 +21,6 @@ extern "C"
 #include "spi_ssp.h"
 #include "spiflash.h"
 
-#include "i2c_bus.h"
-#include "i2c_lpc.h"
-
 #endif
 
 /* hardware identification number */
@@ -63,9 +60,6 @@ extern const ssp_config_t ssp_config_spi;
 extern spi_bus_t spi_bus_ssp0;
 extern const ssp_config_t ssp1_config_spi;
 extern spi_bus_t spi_bus_ssp1;
-
-extern i2c_bus_t i2c0;
-extern i2c_bus_t i2c1;
 
 #endif
 

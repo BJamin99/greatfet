@@ -7,8 +7,6 @@
 #include "spi_ssp.h"
 #include "spiflash.h"
 #include "spiflash_target.h"
-#include "i2c_bus.h"
-#include "i2c_lpc.h"
 #include <libopencm3/cm3/scb.h>
 #include <libopencm3/lpc43xx/creg.h>
 #include <libopencm3/lpc43xx/cgu.h>
@@ -40,22 +38,6 @@ struct gpio_t gpio_usb1_sense	= GPIO(SCU_PINMUX_USB1_SENSE_PORT, SCU_PINMUX_USB1
 #ifdef BOARD_CAPABILITY_USB1_PROVIDE_VBUS
 struct gpio_t gpio_usb1_en	= GPIO(SCU_PINMUX_USB1_EN_PORT, SCU_PINMUX_USB1_EN_PIN);
 #endif
-
-i2c_bus_t i2c0 = {
-	.obj = (void*)I2C0_BASE,
-	.start = i2c_lpc_start,
-	.stop = i2c_lpc_stop,
-	.read = i2c_lpc_read,
-	.write = i2c_lpc_write
-};
-
-i2c_bus_t i2c1 = {
-	.obj = (void*)I2C1_BASE,
-	.start = i2c_lpc_start,
-	.stop = i2c_lpc_stop,
-	.read = i2c_lpc_read,
-	.write = i2c_lpc_write
-};
 
 const ssp_config_t ssp_config_spi = {
 	.data_bits = SSP_DATA_8BITS,

@@ -25,8 +25,6 @@ add_greatfet_library_if_necessary(libgreatfet OBJECT
     ${PATH_GREATFET_FIRMWARE_COMMON}/spiflash_target.c
     ${PATH_GREATFET_FIRMWARE_COMMON}/spiflash.c
     ${PATH_GREATFET_FIRMWARE_COMMON}/spi_ssp.c
-    ${PATH_GREATFET_FIRMWARE_COMMON}/i2c_bus.c
-    ${PATH_GREATFET_FIRMWARE_COMMON}/i2c_lpc.c
     ${PATH_GREATFET_FIRMWARE_COMMON}/gpio_lpc.c
     ${PATH_GREATFET_FIRMWARE_COMMON}/gpio_int.c
     ${PATH_GREATFET_FIRMWARE_COMMON}/jtag.c
