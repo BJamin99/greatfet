@@ -17,14 +17,14 @@ if(GIT_FOUND AND EXISTS "${PATH_GREATFET}/.git")
     option(FETCH_GIT_SUBMODULES "Fetch submdoules if they're not currently pressent." ON)
 
     # Try to pull down the submodules to build this.
-    if(AUTOPULL_GIT_SUBMODULES OR (NOT EXISTS "${PATH_GREATFET}/libgreat/.git" AND FETCH_GIT_SUBMODULES))
-        message(STATUS "Fetching git submodules.")
-        execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive --rebase
-                        WORKING_DIRECTORY ${PATH_GREATFET} RESULT_VARIABLE GIT_SUBMOD_RESULT)
-        if(NOT GIT_SUBMOD_RESULT EQUAL "0")
-            message(FATAL_ERROR "Pulling down submodules failed! (${GIT_SUBMOD_RESULT})")
-        endif()
-    endif()
+    #    if(AUTOPULL_GIT_SUBMODULES OR (NOT EXISTS "${PATH_GREATFET}/libgreat/.git" AND FETCH_GIT_SUBMODULES))
+    #        message(STATUS "Fetching git submodules.")
+    #        execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive --rebase
+    #                        WORKING_DIRECTORY ${PATH_GREATFET} RESULT_VARIABLE GIT_SUBMOD_RESULT)
+    #        if(NOT GIT_SUBMOD_RESULT EQUAL "0")
+    #            message(FATAL_ERROR "Pulling down submodules failed! (${GIT_SUBMOD_RESULT})")
+    #        endif()
+    #    endif()
 endif()
 
 # Check for libgreat.

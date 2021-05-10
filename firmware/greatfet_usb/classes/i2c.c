@@ -53,11 +53,14 @@ static int i2c_verb_start(struct command_transaction *trans)
 	//i2c_verb_start only supports i2c0.  keep it that way for backward compatibility
 	//TODO find a way to support backward compatibility and expose i2c1 (or more generically
 	//     i2c#, where # is platform dependent)
-	i2c[0]->number = 0;
-	i2c[0]->buffer_size = 256;
-	i2c[0]->num_perip_address = 0;
+	i2c[0].number = 0;
+	i2c[0].buffer_size = 256;
+	i2c[0].num_perip_address = 0;
 
-	i2c_init(i2c[0]);
+	i2c_set_scl_high_duty_cycle(&i2c[0], duty_cycle_count);
+	i2c_set_scl_low_duty_cycle(&i2c[0], duty_cycle_count);
+
+	i2c_initialize(&i2c[0]);
 
 	return 0;
 }
@@ -67,7 +70,7 @@ static int i2c_verb_stop()
 	//i2c_verb_stop only supports i2c0.  keep it that way for backward compatibility
 	//TODO find a way to support backward compatibility and expose i2c1 (or more generically
 	//     i2c#, where # is platform dependent)
-	i2c_stop(i2c[0]);
+	i2c_stop(&i2c[0]);
 	return 0;
 }
 
@@ -86,7 +89,7 @@ static int i2c_verb_read(struct command_transaction *trans)
 	//TODO find a way to support backward compatibility and expose i2c1 (or more generically
 	//     i2c#, where # is platform dependent)
 	// FIXME: handle the read status
-	i2c_controller_read(i2c[0], address, rx_length, i2c_rx_buffer);
+	i2c_controller_read(&i2c[0], address, rx_length, i2c_rx_buffer);
 
 	return 0;
 }
@@ -105,7 +108,7 @@ static int i2c_verb_write(struct command_transaction *trans)
 	//i2c_verb_write only supports i2c0.  keep it that way for backward compatibility
 	//TODO find a way to support backward compatibility and expose i2c1 (or more generically
 	//     i2c#, where # is platform dependent)
-	i2c_controller_write(i2c[0], address, tx_length, data_to_write);
+	i2c_controller_write(&i2c[0], address, tx_length, data_to_write);
 
 	return 0;
 }
@@ -114,7 +117,7 @@ static int i2c_verb_write(struct command_transaction *trans)
 static int i2c_verb_issue_start(struct command_transaction *trans)
 {
 	(void)trans;
-	i2c_start(i2c[0]);
+	i2c_start(&i2c[0]);
 	return 0;
 }
 
@@ -122,7 +125,7 @@ static int i2c_verb_issue_start(struct command_transaction *trans)
 static int i2c_verb_issue_stop(struct command_transaction *trans)
 {
 	(void)trans;
-	i2c_stop(i2c[0]);
+	i2c_stop(&i2c[0]);
 	return 0;
 }
 
@@ -133,7 +136,7 @@ static int i2c_verb_issue_bytes(struct command_transaction *trans)
 	while (comms_argument_data_remaining(trans)) {
 
 		// Transmit each byte in our data stream...
-		i2c_tx_byte(i2c[0], comms_argument_parse_uint8_t(trans));
+		i2c_tx_byte(&i2c[0], comms_argument_parse_uint8_t(trans));
 
 		// FIXME: respond with status
 
@@ -162,7 +165,7 @@ static int i2c_verb_read_bytes(struct command_transaction *trans)
 	// Receive each of our bytes.
 	for (int i=0; i < count; i++) {
 		bool ack = ack_last ? true : (i + 1 != count);
-		data_buffer[i] = i2c_rx_byte(i2c[0], ack);
+		data_buffer[i] = i2c_rx_byte(&i2c[0], ack);
 	}
 
 	return 0;
@@ -187,12 +190,12 @@ static int i2c_verb_scan(struct command_transaction *trans)
 	}
 
 	for (address = 0; address < 128; address++) {
-		write_status = i2c_controller_write(i2c[0], address, NULL, 0);
+		write_status = i2c_controller_write(&i2c[0], address, 0, NULL);
 		if (write_status == 0x18) {
 			write_status_buffer[address >> 3] |= 1 << (address & 0x07);
 		}
 
-		read_status = i2c_controller_read(i2c[0], address, NULL, 0);
+		read_status = i2c_controller_read(&i2c[0], address, 0, NULL);
 		if (read_status == 0x40) {
 			read_status_buffer[address >> 3] |= 1 << (address & 0x07);
 		}
@@ -207,8 +210,8 @@ void stream_i2c_data(void *argument)
 	i2c_stream_t *stream = (i2c_stream_t *)argument;
 
 	// Perform our I2C read operation...
-	i2c_controller_write(i2c[0], stream->address, stream->write_length, stream->write_data);
-	i2c_controller_read(i2c[0], stream->address, stream->read_length, stream->read_data);
+	i2c_controller_write(&i2c[0], stream->address, stream->write_length, stream->write_data);
+	i2c_controller_read(&i2c[0], stream->address, stream->read_length, stream->read_data);
 
 	// ... and gather the resultant data.
 	usb_streaming_send_data(stream->read_data, stream->read_length);
