@@ -55,12 +55,13 @@ static int i2c_verb_start(struct command_transaction *trans)
 	//     i2c#, where # is platform dependent)
 	i2c[0].number = 0;
 	i2c[0].buffer_size = 256;
+	i2c[0].timeout = 10000;
 	i2c[0].num_perip_address = 0;
+
+	i2c_initialize(&i2c[0]);
 
 	i2c_set_scl_high_duty_cycle(&i2c[0], duty_cycle_count);
 	i2c_set_scl_low_duty_cycle(&i2c[0], duty_cycle_count);
-
-	i2c_initialize(&i2c[0]);
 
 	return 0;
 }
