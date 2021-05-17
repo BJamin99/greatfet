@@ -175,15 +175,15 @@ static int i2c_verb_read_bytes(struct command_transaction *trans)
 
 static int i2c_verb_scan(struct command_transaction *trans)
 {
-	uint8_t read_status, write_status;
-
 	uint8_t *write_status_buffer = comms_response_reserve_space(trans, 16);
 	uint8_t *read_status_buffer = comms_response_reserve_space(trans, 16);
 	uint8_t address;
+//	i2c_stat_code_t status;
+	int rc = 0;
 
 	if (!comms_transaction_okay(trans)) {
-        return EBADMSG;
-    }
+		return EBADMSG;
+	}
 
 	for (address = 0; address < 16; address++) {
 		write_status_buffer[address] = 0;
@@ -191,13 +191,13 @@ static int i2c_verb_scan(struct command_transaction *trans)
 	}
 
 	for (address = 0; address < 128; address++) {
-		write_status = i2c_controller_write(&i2c[0], address, 0, NULL);
-		if (write_status == 0x18) {
+		rc = i2c_controller_write(&i2c[0], address, 0, NULL);
+		if (!rc) {
 			write_status_buffer[address >> 3] |= 1 << (address & 0x07);
 		}
 
-		read_status = i2c_controller_read(&i2c[0], address, 0, NULL);
-		if (read_status == 0x40) {
+		rc = i2c_controller_read(&i2c[0], address, 0, NULL);
+		if (!rc) {
 			read_status_buffer[address >> 3] |= 1 << (address & 0x07);
 		}
 	}
