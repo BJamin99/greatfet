@@ -111,6 +111,7 @@ void pin_setup(void) {
 
 	/* enable input on SCL and SDA pins */
 	SCU_SFSI2C0 = SCU_I2C0_NOMINAL;
+	//SCU_SFSI2C0=0x8D8D;
 
 #ifdef BOARD_CAPABILITY_USB1_PROVIDE_VBUS
 	/* Set up the load switch that we'll use if we want to play host on USB1. */

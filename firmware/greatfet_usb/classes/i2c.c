@@ -44,11 +44,18 @@ static int i2c_verb_start(struct command_transaction *trans)
 	uint16_t duty_cycle_count;
 	uint16_t value = comms_argument_parse_uint16_t(trans);
 
-	if (value == 0) {
-		duty_cycle_count = 255;
+	//Assuming a 204MHz clock for branch clock CLK_APB1_I2C0
+	//102 = 1MHz
+	//255 = 400KHz
+	//1020 = 100KHz
+	//In general, I2C SCL is 204000000/(2*duty_cycle_count)
+	if (value < 102) {
+		duty_cycle_count = 102;
 	} else {
 		duty_cycle_count = value;
 	}
+	//For testing, fix the clock (debugging issue of changing duty cycle while using interrupts)
+	//duty_cycle_count=102;
 
 	//i2c_verb_start only supports i2c0.  keep it that way for backward compatibility
 	//TODO find a way to support backward compatibility and expose i2c1 (or more generically
@@ -58,10 +65,7 @@ static int i2c_verb_start(struct command_transaction *trans)
 	i2c[0].timeout = 10000;
 	i2c[0].num_perip_address = 0;
 
-	i2c_initialize(&i2c[0]);
-
-	i2c_set_scl_high_duty_cycle(&i2c[0], duty_cycle_count);
-	i2c_set_scl_low_duty_cycle(&i2c[0], duty_cycle_count);
+	i2c_initialize(&i2c[0], duty_cycle_count);
 
 	return 0;
 }
@@ -192,11 +196,13 @@ static int i2c_verb_scan(struct command_transaction *trans)
 
 	for (address = 0; address < 128; address++) {
 		rc = i2c_controller_write(&i2c[0], address, 0, NULL);
+		//i2c_stop(&i2c[0]);
 		if (!rc) {
 			write_status_buffer[address >> 3] |= 1 << (address & 0x07);
 		}
 
 		rc = i2c_controller_read(&i2c[0], address, 0, NULL);
+		//i2c_stop(&i2c[0]);
 		if (!rc) {
 			read_status_buffer[address >> 3] |= 1 << (address & 0x07);
 		}
